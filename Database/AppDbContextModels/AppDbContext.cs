@@ -15,6 +15,10 @@ public partial class AppDbContext : DbContext
     {
     }
 
+    public virtual DbSet<Product> Products { get; set; }
+
+    public virtual DbSet<Song> Songs { get; set; }
+
     public virtual DbSet<Student> Students { get; set; }
 
     public virtual DbSet<User> Users { get; set; }
@@ -25,6 +29,37 @@ public partial class AppDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<Product>(entity =>
+        {
+            entity.ToTable("Product");
+
+            entity.Property(e => e.Category)
+                .HasMaxLength(200)
+                .IsUnicode(false);
+            entity.Property(e => e.ProductName)
+                .HasMaxLength(200)
+                .IsUnicode(false);
+            entity.Property(e => e.ProductType)
+                .HasMaxLength(200)
+                .IsUnicode(false);
+        });
+
+        modelBuilder.Entity<Song>(entity =>
+        {
+            entity.ToTable("Song");
+
+            entity.Property(e => e.ArtistName)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+            entity.Property(e => e.Genre).HasMaxLength(100);
+            entity.Property(e => e.SongName)
+                .HasMaxLength(200)
+                .IsUnicode(false);
+            entity.Property(e => e.SongType)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+        });
+
         modelBuilder.Entity<Student>(entity =>
         {
             entity.ToTable("Student");
