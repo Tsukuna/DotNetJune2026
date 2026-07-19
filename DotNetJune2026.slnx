@@ -3,4 +3,5 @@
   <Project Path="DapperConsoleApp/DapperConsoleApp.csproj" Id="69fa1fca-c97e-457d-bb88-6a5cd948a300" />
   <Project Path="Database/Database.csproj" Id="748f8450-385a-4457-b872-2001739d930b" />
   <Project Path="EFCoreConsoleApp/EFCoreConsoleApp.csproj" Id="5c56408c-1ab5-4177-a55b-60f078987b6d" />
+  <Project Path="WindowFormApplication/WindowFormApplication.csproj" Id="3d99c0a1-0c67-41b5-a38d-a720e9e371ac" />
 </Solution>
