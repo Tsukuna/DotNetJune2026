@@ -1,4 +1,6 @@
 using Database.AppDbContextModels;
+using System.Net;
+using static WindowFormApplication.StudentForm;
 
 namespace WindowFormApplication
 {
@@ -6,6 +8,8 @@ namespace WindowFormApplication
     {
 
         private readonly AppDbContext _db;
+
+        int editId = 0;
         public StudentForm()
         {
             InitializeComponent();
@@ -77,21 +81,83 @@ namespace WindowFormApplication
 
         private void btnSave_Click(object sender, EventArgs e)
         {
-            _db.Students.Add(new Student
+           if(editId == 0)
             {
-                StudentName = txtName.Text.Trim(),
-                FatherName = txtFatherName.Text.Trim(),
-                StudentNo = txtStudentNo.Text.Trim(),
-                BirthDate = datePicker.Value,
-                PhoneNumber = txtPhone.Text.Trim(),
-                Address = txtAddress.Text.Trim(),
-                IsDelete = true
-            });
-            _db.SaveChanges();
+                _db.Students.Add(new Student
+                {
+                    StudentName = txtName.Text.Trim(),
+                    FatherName = txtFatherName.Text.Trim(),
+                    StudentNo = txtStudentNo.Text.Trim(),
+                    BirthDate = datePicker.Value,
+                    PhoneNumber = txtPhone.Text.Trim(),
+                    Address = txtAddress.Text.Trim(),
+                    IsDelete = true
+                });
+                _db.SaveChanges();
+
+            }
+            else
+            {
+                var student = _db.Students.Where(x => x.StudentId == editId).FirstOrDefault();
+                if (student is null) return;
+
+                student.StudentName = txtName.Text.Trim();
+                student.FatherName = txtFatherName.Text.Trim();
+                student.StudentNo = txtStudentNo.Text.Trim();
+                student.BirthDate = datePicker.Value;
+                student.PhoneNumber= txtPhone.Text.Trim();
+                student.Address   = txtAddress.Text.Trim();
+
+                _db.SaveChanges();
+
+            }
 
             BindData();
+
         }
 
-      
+        private void dgvData_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        {
+
+            if (e.ColumnIndex == -1) return;
+
+            if(e.ColumnIndex == 0) //edit
+            {
+                var studentId = Convert.ToInt32(dgvData.Rows[e.RowIndex].Cells[nameof(colStudentId)].Value);
+                var student = _db.Students.Where(x => x.StudentId == studentId).FirstOrDefault();
+
+                if (student is null) return;
+
+                txtName.Text = student.StudentName;
+                txtFatherName.Text = student.FatherName;
+                txtStudentNo.Text = student.StudentNo;
+                datePicker.Value = student.BirthDate;
+                txtPhone.Text = student.PhoneNumber;
+                txtAddress.Text = student.Address;
+
+                editId = student.StudentId;
+
+            }
+            else if(e.ColumnIndex == 1) //delete
+            {
+                var result = MessageBox.Show("Are u sure to delete", "Confirm",MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                if (result == DialogResult.Yes)
+                {
+                    var studentId = Convert.ToInt32(dgvData.Rows[e.RowIndex].Cells[nameof(colStudentId)].Value);
+                    var student = _db.Students.Where(x => x.StudentId == studentId).FirstOrDefault();
+
+                    if (student is null) return;
+
+                    _db.Students.Remove(student);
+                    _db.SaveChanges();
+                    BindData();
+                }
+            }
+            else
+            {
+                Console.WriteLine("Please enter valid action...");
+            }
+
+        }
     }
 }

@@ -29,14 +29,6 @@
         private void InitializeComponent()
         {
             dgvData = new DataGridView();
-            RowNo = new DataGridViewTextBoxColumn();
-            colStudentNo = new DataGridViewTextBoxColumn();
-            colFatherName = new DataGridViewTextBoxColumn();
-            colBirthDate = new DataGridViewTextBoxColumn();
-            colStudentId = new DataGridViewTextBoxColumn();
-            colStudentName = new DataGridViewTextBoxColumn();
-            colPhoneNum = new DataGridViewTextBoxColumn();
-            colAddress = new DataGridViewTextBoxColumn();
             label1 = new Label();
             label3 = new Label();
             label4 = new Label();
@@ -51,6 +43,16 @@
             label6 = new Label();
             label7 = new Label();
             datePicker = new DateTimePicker();
+            colEdit = new DataGridViewButtonColumn();
+            colDelete = new DataGridViewButtonColumn();
+            RowNo = new DataGridViewTextBoxColumn();
+            colStudentNo = new DataGridViewTextBoxColumn();
+            colStudentId = new DataGridViewTextBoxColumn();
+            colFatherName = new DataGridViewTextBoxColumn();
+            colBirthDate = new DataGridViewTextBoxColumn();
+            colStudentName = new DataGridViewTextBoxColumn();
+            colPhoneNum = new DataGridViewTextBoxColumn();
+            colAddress = new DataGridViewTextBoxColumn();
             ((System.ComponentModel.ISupportInitialize)dgvData).BeginInit();
             SuspendLayout();
             // 
@@ -60,7 +62,7 @@
             dgvData.AllowUserToDeleteRows = false;
             dgvData.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
             dgvData.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            dgvData.Columns.AddRange(new DataGridViewColumn[] { RowNo, colStudentNo, colFatherName, colBirthDate, colStudentId, colStudentName, colPhoneNum, colAddress });
+            dgvData.Columns.AddRange(new DataGridViewColumn[] { colEdit, colDelete, RowNo, colStudentNo, colStudentId, colFatherName, colBirthDate, colStudentName, colPhoneNum, colAddress });
             dgvData.Dock = DockStyle.Bottom;
             dgvData.Location = new Point(0, 253);
             dgvData.Name = "dgvData";
@@ -68,70 +70,7 @@
             dgvData.RowHeadersWidth = 51;
             dgvData.Size = new Size(944, 245);
             dgvData.TabIndex = 9;
-            // 
-            // RowNo
-            // 
-            RowNo.DataPropertyName = "RowNo";
-            RowNo.HeaderText = "Row Number";
-            RowNo.MinimumWidth = 6;
-            RowNo.Name = "RowNo";
-            RowNo.ReadOnly = true;
-            // 
-            // colStudentNo
-            // 
-            colStudentNo.DataPropertyName = "StudentNo";
-            colStudentNo.HeaderText = "Student No";
-            colStudentNo.MinimumWidth = 6;
-            colStudentNo.Name = "colStudentNo";
-            colStudentNo.ReadOnly = true;
-            // 
-            // colFatherName
-            // 
-            colFatherName.DataPropertyName = "FatherName";
-            colFatherName.HeaderText = "Father Name";
-            colFatherName.MinimumWidth = 6;
-            colFatherName.Name = "colFatherName";
-            colFatherName.ReadOnly = true;
-            // 
-            // colBirthDate
-            // 
-            colBirthDate.DataPropertyName = "BirthDate";
-            colBirthDate.HeaderText = "Birth Date";
-            colBirthDate.MinimumWidth = 6;
-            colBirthDate.Name = "colBirthDate";
-            colBirthDate.ReadOnly = true;
-            // 
-            // colStudentId
-            // 
-            colStudentId.DataPropertyName = "StudentId";
-            colStudentId.HeaderText = "Student Id";
-            colStudentId.MinimumWidth = 6;
-            colStudentId.Name = "colStudentId";
-            colStudentId.ReadOnly = true;
-            // 
-            // colStudentName
-            // 
-            colStudentName.DataPropertyName = "StudentName";
-            colStudentName.HeaderText = "Student Name";
-            colStudentName.MinimumWidth = 6;
-            colStudentName.Name = "colStudentName";
-            colStudentName.ReadOnly = true;
-            // 
-            // colPhoneNum
-            // 
-            colPhoneNum.DataPropertyName = "PhoneNumber";
-            colPhoneNum.HeaderText = "Phone Number";
-            colPhoneNum.MinimumWidth = 6;
-            colPhoneNum.Name = "colPhoneNum";
-            colPhoneNum.ReadOnly = true;
-            // 
-            // colAddress
-            // 
-            colAddress.DataPropertyName = "Address";
-            colAddress.HeaderText = "Address";
-            colAddress.MinimumWidth = 6;
-            colAddress.Name = "colAddress";
-            colAddress.ReadOnly = true;
+            dgvData.CellContentClick += dgvData_CellContentClick;
             // 
             // label1
             // 
@@ -249,6 +188,88 @@
             datePicker.Size = new Size(250, 27);
             datePicker.TabIndex = 15;
             // 
+            // colEdit
+            // 
+            colEdit.HeaderText = "Edit";
+            colEdit.MinimumWidth = 6;
+            colEdit.Name = "colEdit";
+            colEdit.ReadOnly = true;
+            colEdit.Text = "Edit";
+            colEdit.UseColumnTextForButtonValue = true;
+            // 
+            // colDelete
+            // 
+            colDelete.HeaderText = "Delete";
+            colDelete.MinimumWidth = 6;
+            colDelete.Name = "colDelete";
+            colDelete.ReadOnly = true;
+            colDelete.Text = "Delete";
+            colDelete.UseColumnTextForButtonValue = true;
+            // 
+            // RowNo
+            // 
+            RowNo.DataPropertyName = "RowNo";
+            RowNo.HeaderText = "Row Number";
+            RowNo.MinimumWidth = 6;
+            RowNo.Name = "RowNo";
+            RowNo.ReadOnly = true;
+            // 
+            // colStudentNo
+            // 
+            colStudentNo.DataPropertyName = "StudentNo";
+            colStudentNo.HeaderText = "Student No";
+            colStudentNo.MinimumWidth = 6;
+            colStudentNo.Name = "colStudentNo";
+            colStudentNo.ReadOnly = true;
+            // 
+            // colStudentId
+            // 
+            colStudentId.DataPropertyName = "StudentId";
+            colStudentId.HeaderText = "Student Id";
+            colStudentId.MinimumWidth = 6;
+            colStudentId.Name = "colStudentId";
+            colStudentId.ReadOnly = true;
+            // 
+            // colFatherName
+            // 
+            colFatherName.DataPropertyName = "FatherName";
+            colFatherName.HeaderText = "Father Name";
+            colFatherName.MinimumWidth = 6;
+            colFatherName.Name = "colFatherName";
+            colFatherName.ReadOnly = true;
+            // 
+            // colBirthDate
+            // 
+            colBirthDate.DataPropertyName = "BirthDate";
+            colBirthDate.HeaderText = "Birth Date";
+            colBirthDate.MinimumWidth = 6;
+            colBirthDate.Name = "colBirthDate";
+            colBirthDate.ReadOnly = true;
+            // 
+            // colStudentName
+            // 
+            colStudentName.DataPropertyName = "StudentName";
+            colStudentName.HeaderText = "Student Name";
+            colStudentName.MinimumWidth = 6;
+            colStudentName.Name = "colStudentName";
+            colStudentName.ReadOnly = true;
+            // 
+            // colPhoneNum
+            // 
+            colPhoneNum.DataPropertyName = "PhoneNumber";
+            colPhoneNum.HeaderText = "Phone Number";
+            colPhoneNum.MinimumWidth = 6;
+            colPhoneNum.Name = "colPhoneNum";
+            colPhoneNum.ReadOnly = true;
+            // 
+            // colAddress
+            // 
+            colAddress.DataPropertyName = "Address";
+            colAddress.HeaderText = "Address";
+            colAddress.MinimumWidth = 6;
+            colAddress.Name = "colAddress";
+            colAddress.ReadOnly = true;
+            // 
             // StudentForm
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
@@ -295,19 +316,21 @@
         private TextBox txtFatherName;
         private TextBox txtPhone;
         private Button btnCancel;
-        private DataGridViewTextBoxColumn RowNo;
-        private DataGridViewTextBoxColumn colStudentNo;
-        private DataGridViewTextBoxColumn colFatherName;
-        private DataGridViewTextBoxColumn colBirthDate;
-        private DataGridViewTextBoxColumn colStudentId;
-        private DataGridViewTextBoxColumn colStudentName;
-        private DataGridViewTextBoxColumn colPhoneNum;
-        private DataGridViewTextBoxColumn colAddress;
         private TextBox textBox5;
         private Label label5;
         private TextBox txtStudentNo;
         private Label label6;
         private Label label7;
         private DateTimePicker datePicker;
+        private DataGridViewButtonColumn colEdit;
+        private DataGridViewButtonColumn colDelete;
+        private DataGridViewTextBoxColumn RowNo;
+        private DataGridViewTextBoxColumn colStudentNo;
+        private DataGridViewTextBoxColumn colStudentId;
+        private DataGridViewTextBoxColumn colFatherName;
+        private DataGridViewTextBoxColumn colBirthDate;
+        private DataGridViewTextBoxColumn colStudentName;
+        private DataGridViewTextBoxColumn colPhoneNum;
+        private DataGridViewTextBoxColumn colAddress;
     }
 }
