@@ -1,0 +1,6 @@
+@MiniPOSApplication_HostAddress = http://localhost:5181
+
+GET {{MiniPOSApplication_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

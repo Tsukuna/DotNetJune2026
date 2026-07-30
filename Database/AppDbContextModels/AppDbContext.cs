@@ -21,6 +21,12 @@ public partial class AppDbContext : DbContext
 
     public virtual DbSet<Student> Students { get; set; }
 
+    public virtual DbSet<TblProduct> TblProducts { get; set; }
+
+    public virtual DbSet<TblSale> TblSales { get; set; }
+
+    public virtual DbSet<TblSaleDetail> TblSaleDetails { get; set; }
+
     public virtual DbSet<User> Users { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -80,6 +86,65 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.StudentNo)
                 .HasMaxLength(50)
                 .IsUnicode(false);
+        });
+
+        modelBuilder.Entity<TblProduct>(entity =>
+        {
+            entity.HasKey(e => e.ProductId).HasName("PK__Tbl_Prod__B40CC6CD00571561");
+
+            entity.ToTable("Tbl_Product");
+
+            entity.Property(e => e.CreatedDate)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.IsActive).HasDefaultValue(true);
+            entity.Property(e => e.Price).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.ProductName).HasMaxLength(200);
+            entity.Property(e => e.UpdateDate).HasColumnType("datetime");
+        });
+
+        modelBuilder.Entity<TblSale>(entity =>
+        {
+            entity.HasKey(e => e.SaleId).HasName("PK__Tbl_Sale__1EE3C3FFAFB8D2AC");
+
+            entity.ToTable("Tbl_Sale");
+
+            entity.HasIndex(e => e.VoucherNumber, "UQ__Tbl_Sale__56C64C171490585F").IsUnique();
+
+            entity.Property(e => e.CreatedDate)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.IsActive).HasDefaultValue(true);
+            entity.Property(e => e.SaleDate)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.TotalAmount).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.UpdateDate).HasColumnType("datetime");
+            entity.Property(e => e.VoucherNumber).HasMaxLength(50);
+        });
+
+        modelBuilder.Entity<TblSaleDetail>(entity =>
+        {
+            entity.HasKey(e => e.SaleDetailId).HasName("PK__Tbl_Sale__70DB14FE99359FE2");
+
+            entity.ToTable("Tbl_SaleDetail");
+
+            entity.Property(e => e.CreatedDate)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.IsActive).HasDefaultValue(true);
+            entity.Property(e => e.SubTotal).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.UnitPrice).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.UpdateDate).HasColumnType("datetime");
+
+            entity.HasOne(d => d.Product).WithMany(p => p.TblSaleDetails)
+                .HasForeignKey(d => d.ProductId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_SaleDetail_Product");
+
+            entity.HasOne(d => d.Sale).WithMany(p => p.TblSaleDetails)
+                .HasForeignKey(d => d.SaleId)
+                .HasConstraintName("FK_SaleDetail_Sale");
         });
 
         modelBuilder.Entity<User>(entity =>
