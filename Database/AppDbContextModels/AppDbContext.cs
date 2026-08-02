@@ -15,7 +15,11 @@ public partial class AppDbContext : DbContext
     {
     }
 
+    public virtual DbSet<DecorationPackage> DecorationPackages { get; set; }
+
     public virtual DbSet<Product> Products { get; set; }
+
+    public virtual DbSet<ServicePackage> ServicePackages { get; set; }
 
     public virtual DbSet<Song> Songs { get; set; }
 
@@ -29,12 +33,36 @@ public partial class AppDbContext : DbContext
 
     public virtual DbSet<User> Users { get; set; }
 
+    public virtual DbSet<Vendor> Vendors { get; set; }
+
+    public virtual DbSet<Venue> Venues { get; set; }
+
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
         => optionsBuilder.UseSqlServer("Server=LAPTOP-1LF20QJ8\\SQLEXPRESS;Database=DotNetJune2026;User ID=sa;Password=sasa@123;TrustServerCertificate=True;");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<DecorationPackage>(entity =>
+        {
+            entity.HasKey(e => e.DecorationPackageId).HasName("PK__Decorati__10FC647162DF2BA6");
+
+            entity.ToTable("DecorationPackage");
+
+            entity.Property(e => e.CreatedDate)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.Description).HasMaxLength(500);
+            entity.Property(e => e.IsActive).HasDefaultValue(true);
+            entity.Property(e => e.PackageName).HasMaxLength(100);
+            entity.Property(e => e.Price).HasColumnType("decimal(18, 2)");
+
+            entity.HasOne(d => d.Vendor).WithMany(p => p.DecorationPackages)
+                .HasForeignKey(d => d.VendorId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_DecorationPackage_Vendor");
+        });
+
         modelBuilder.Entity<Product>(entity =>
         {
             entity.ToTable("Product");
@@ -48,6 +76,26 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.ProductType)
                 .HasMaxLength(200)
                 .IsUnicode(false);
+        });
+
+        modelBuilder.Entity<ServicePackage>(entity =>
+        {
+            entity.HasKey(e => e.ServicePackageId).HasName("PK__ServiceP__0747A82FAAFDED83");
+
+            entity.ToTable("ServicePackage");
+
+            entity.Property(e => e.CreatedDate)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.Description).HasMaxLength(500);
+            entity.Property(e => e.IsActive).HasDefaultValue(true);
+            entity.Property(e => e.PackageName).HasMaxLength(100);
+            entity.Property(e => e.Price).HasColumnType("decimal(18, 2)");
+
+            entity.HasOne(d => d.Vendor).WithMany(p => p.ServicePackages)
+                .HasForeignKey(d => d.VendorId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_ServicePackage_Vendor");
         });
 
         modelBuilder.Entity<Song>(entity =>
@@ -157,6 +205,43 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.Username)
                 .HasMaxLength(50)
                 .IsUnicode(false);
+        });
+
+        modelBuilder.Entity<Vendor>(entity =>
+        {
+            entity.HasKey(e => e.VendorId).HasName("PK__Vendor__FC8618F35A90A528");
+
+            entity.ToTable("Vendor");
+
+            entity.Property(e => e.Address).HasMaxLength(200);
+            entity.Property(e => e.CreatedDate)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.Description).HasMaxLength(500);
+            entity.Property(e => e.Email).HasMaxLength(100);
+            entity.Property(e => e.Phone).HasMaxLength(20);
+            entity.Property(e => e.VendorName).HasMaxLength(100);
+        });
+
+        modelBuilder.Entity<Venue>(entity =>
+        {
+            entity.HasKey(e => e.VenueId).HasName("PK__Venue__3C57E5F23CFB18EB");
+
+            entity.ToTable("Venue");
+
+            entity.Property(e => e.CreatedDate)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.Description).HasMaxLength(500);
+            entity.Property(e => e.IsActive).HasDefaultValue(true);
+            entity.Property(e => e.Location).HasMaxLength(200);
+            entity.Property(e => e.Price).HasColumnType("decimal(18, 2)");
+            entity.Property(e => e.VenueName).HasMaxLength(100);
+
+            entity.HasOne(d => d.Vendor).WithMany(p => p.Venues)
+                .HasForeignKey(d => d.VendorId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_Venue_Vendor");
         });
 
         OnModelCreatingPartial(modelBuilder);
