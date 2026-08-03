@@ -13,8 +13,6 @@ public partial class TblSale
 
     public decimal TotalAmount { get; set; }
 
-    public bool IsActive { get; set; }
-
     public DateTime CreatedDate { get; set; }
 
     public DateTime? UpdateDate { get; set; }
