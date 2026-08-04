@@ -6,6 +6,7 @@
   <Project Path="MiniPOSApplication/MiniPOSApplication.csproj" Id="cf14d039-5d86-41b3-a4f2-1d1ad897b941" />
   <Project Path="WebApiApplication/WebApiApplication.csproj" Id="6740584c-edb3-4027-99de-7ce83bd31d85" />
   <Project Path="WeddingBookingApplication.API/WeddingBookingApplication.API.csproj" Id="ad7bf530-fc60-4f67-b1f7-574f51c843ba" />
+  <Project Path="WeddingBookingApplication.Console/WeddingBookingApplication.Console.csproj" Id="8012917f-3f3b-4894-93c2-b15021c53dfb" />
   <Project Path="WeddingBookingApplication.Domain/WeddingBookingApplication.Domain.csproj" Id="79390a02-b5a7-48fc-90d3-ac54371916db" />
   <Project Path="WindowFormApplication/WindowFormApplication.csproj" Id="3d99c0a1-0c67-41b5-a38d-a720e9e371ac" />
 </Solution>
