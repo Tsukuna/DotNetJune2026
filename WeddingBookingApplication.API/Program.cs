@@ -1,9 +1,10 @@
-using Database.AppDbContextModels;
 using Microsoft.EntityFrameworkCore;
+using WeddingBookingApplication.Database.AppDbContextModels;
 using WeddingBookingApplication.Domain.Features.Decoration;
 using WeddingBookingApplication.Domain.Features.ServicePackage;
 using WeddingBookingApplication.Domain.Features.Vendor;
 using WeddingBookingApplication.Domain.Features.Venue;
+using WeddingBookingApplication.Domain.Features.Booking;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,6 +17,7 @@ builder.Services.AddScoped<VendorService>();
 builder.Services.AddScoped<VenueService>();
 builder.Services.AddScoped<DecorationService>();
 builder.Services.AddScoped<ServicePackageService>();
+builder.Services.AddScoped<BookService>();
 
 // ── ASP.NET Core ─────────────────────────────────────────────────────────────
 builder.Services.AddControllers();

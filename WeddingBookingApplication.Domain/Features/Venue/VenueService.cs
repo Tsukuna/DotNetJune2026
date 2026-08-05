@@ -1,5 +1,6 @@
-using Database.AppDbContextModels;
 using WeddingBookingApplication.Domain.Models.Venue;
+using WeddingBookingApplication.Database.AppDbContextModels;
+
 
 namespace WeddingBookingApplication.Domain.Features.Venue;
 

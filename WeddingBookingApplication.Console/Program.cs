@@ -4,6 +4,7 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
+using WeddingBookingApplication.Domain.Models.Booking;
 using WeddingBookingApplication.Domain.Models.Decoration;
 using WeddingBookingApplication.Domain.Models.Service;
 using WeddingBookingApplication.Domain.Models.Vendor;
@@ -31,6 +32,8 @@ public class Program
             Console.WriteLine("2. Manage Venues");
             Console.WriteLine("3. Manage Decoration Packages");
             Console.WriteLine("4. Manage Service Packages");
+            Console.WriteLine("5. Manage Customer Bookings");
+            Console.WriteLine("6. Manage Vendor Bookings");
             Console.WriteLine("0. Exit");
             Console.WriteLine("========================================");
             Console.Write("Select option: ");
@@ -49,6 +52,12 @@ public class Program
                     break;
                 case "4":
                     await ManageServicePackages();
+                    break;
+                case "5":
+                    await ManageCustomerBookings();
+                    break;
+                case "6":
+                    await ManageVendorBookings();
                     break;
                 case "0":
                     exit = true;
@@ -1108,6 +1117,402 @@ public class Program
         {
             Console.WriteLine("Error: " + ex.Message);
         }
+        Console.WriteLine("\nPress any key to continue...");
+        Console.ReadKey();
+    }
+    #endregion
+
+    #region Customer Booking Management
+    private static async Task ManageCustomerBookings()
+    {
+        bool back = false;
+        while (!back)
+        {
+            Console.Clear();
+            Console.WriteLine("--- CUSTOMER BOOKING MANAGEMENT ---");
+            Console.WriteLine("1. Create New Booking");
+            Console.WriteLine("2. View Booking History");
+            Console.WriteLine("3. View Booking Details");
+            Console.WriteLine("4. Cancel Booking");
+            Console.WriteLine("0. Back to Main Menu");
+            Console.Write("Select option: ");
+            string choice = Console.ReadLine() ?? "";
+
+            switch (choice)
+            {
+                case "1":
+                    await CreateBooking();
+                    break;
+                case "2":
+                    await ViewBookingHistory();
+                    break;
+                case "3":
+                    await ViewBookingDetails();
+                    break;
+                case "4":
+                    await CancelBooking();
+                    break;
+                case "0":
+                    back = true;
+                    break;
+                default:
+                    Console.WriteLine("Invalid option. Press any key...");
+                    Console.ReadKey();
+                    break;
+            }
+        }
+    }
+
+    private static async Task CreateBooking()
+    {
+        Console.Clear();
+        Console.WriteLine("--- CREATE NEW BOOKING ---");
+        var request = new BookingCreateRequestModel();
+
+        Console.Write("Enter Customer Name: ");
+        request.CustomerName = Console.ReadLine() ?? "";
+        Console.Write("Enter Customer Phone: ");
+        request.CustomerPhone = Console.ReadLine() ?? "";
+        Console.Write("Enter Customer Email (optional): ");
+        string email = Console.ReadLine() ?? "";
+        request.CustomerEmail = string.IsNullOrWhiteSpace(email) ? null : email;
+
+        Console.Write("Enter Vendor ID: ");
+        if (!int.TryParse(Console.ReadLine(), out int vendorId)) return;
+        request.VendorId = vendorId;
+
+        Console.Write("Enter Venue ID: ");
+        if (!int.TryParse(Console.ReadLine(), out int venueId)) return;
+        request.VenueId = venueId;
+
+        Console.Write("Enter Booking Date (yyyy-MM-dd): ");
+        if (!DateOnly.TryParse(Console.ReadLine(), out DateOnly bookingDate))
+        {
+            Console.WriteLine("Invalid Date format.");
+            Console.WriteLine("\nPress any key to continue...");
+            Console.ReadKey();
+            return;
+        }
+        request.BookingDate = bookingDate;
+
+        Console.Write("Enter Guest Count: ");
+        if (!int.TryParse(Console.ReadLine(), out int guestCount)) return;
+        request.GuestCount = guestCount;
+
+        // Decoration Package IDs input (comma separated)
+        Console.Write("Enter Decoration Package IDs (comma separated, optional): ");
+        string decIdsInput = Console.ReadLine() ?? "";
+        if (!string.IsNullOrWhiteSpace(decIdsInput))
+        {
+            foreach (var part in decIdsInput.Split(','))
+            {
+                if (int.TryParse(part.Trim(), out int id))
+                {
+                    request.DecorationPackageIds.Add(id);
+                }
+            }
+        }
+
+        // Service Package IDs input (comma separated)
+        Console.Write("Enter Service Package IDs (comma separated, optional): ");
+        string srvIdsInput = Console.ReadLine() ?? "";
+        if (!string.IsNullOrWhiteSpace(srvIdsInput))
+        {
+            foreach (var part in srvIdsInput.Split(','))
+            {
+                if (int.TryParse(part.Trim(), out int id))
+                {
+                    request.ServicePackageIds.Add(id);
+                }
+            }
+        }
+
+        try
+        {
+            string jsonBody = JsonConvert.SerializeObject(request);
+            var content = new StringContent(jsonBody, Encoding.UTF8, "application/json");
+
+            var response = await client.PostAsync(BaseUrl + "api/Booking", content);
+            string responseString = await response.Content.ReadAsStringAsync();
+
+            if (response.IsSuccessStatusCode)
+            {
+                var res = JsonConvert.DeserializeObject<BookingCreateResponseModel>(responseString);
+                if (res != null && res.IsSuccess)
+                {
+                    Console.WriteLine($"Success! Booking ID: {res.BookingId} | Message: {res.Message}");
+                }
+                else
+                {
+                    Console.WriteLine($"Failed: {res?.Message}");
+                }
+            }
+            else
+            {
+                Console.WriteLine("Error: " + response.StatusCode + "\n" + responseString);
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("Error: " + ex.Message);
+        }
+
+        Console.WriteLine("\nPress any key to continue...");
+        Console.ReadKey();
+    }
+
+    private static async Task ViewBookingHistory()
+    {
+        Console.Clear();
+        Console.WriteLine("--- VIEW BOOKING HISTORY ---");
+        Console.Write("Enter Customer Phone (optional): ");
+        string phone = Console.ReadLine() ?? "";
+        Console.Write("Enter Customer Email (optional): ");
+        string email = Console.ReadLine() ?? "";
+
+        try
+        {
+            string url = $"{BaseUrl}api/Booking/history?";
+            if (!string.IsNullOrWhiteSpace(phone)) url += $"customerPhone={Uri.EscapeDataString(phone)}&";
+            if (!string.IsNullOrWhiteSpace(email)) url += $"customerEmail={Uri.EscapeDataString(email)}";
+
+            var response = await client.GetAsync(url);
+            if (response.IsSuccessStatusCode)
+            {
+                string jsonString = await response.Content.ReadAsStringAsync();
+                var bookings = JsonConvert.DeserializeObject<List<BookingResponseModel>>(jsonString);
+
+                if (bookings == null || bookings.Count == 0)
+                {
+                    Console.WriteLine("No bookings found.");
+                }
+                else
+                {
+                    foreach (var b in bookings)
+                    {
+                        Console.WriteLine($"ID: {b.BookingId} | Cust: {b.CustomerName} | Date: {b.BookingDate} | Vendor: {b.VendorName} | Total: {b.TotalAmount:C} | Status: {b.StatusName}");
+                    }
+                }
+            }
+            else
+            {
+                Console.WriteLine("Failed to fetch history. Status Code: " + response.StatusCode);
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("Error: " + ex.Message);
+        }
+
+        Console.WriteLine("\nPress any key to continue...");
+        Console.ReadKey();
+    }
+
+    private static async Task ViewBookingDetails()
+    {
+        Console.Clear();
+        Console.WriteLine("--- VIEW BOOKING DETAILS ---");
+        Console.Write("Enter Booking ID: ");
+        if (!int.TryParse(Console.ReadLine(), out int bookingId)) return;
+
+        try
+        {
+            var response = await client.GetAsync(BaseUrl + "api/Booking/" + bookingId);
+            if (response.IsSuccessStatusCode)
+            {
+                string jsonString = await response.Content.ReadAsStringAsync();
+                var b = JsonConvert.DeserializeObject<BookingResponseModel>(jsonString);
+                if (b != null)
+                {
+                    Console.WriteLine($"Booking ID: {b.BookingId}");
+                    Console.WriteLine($"Status: {b.StatusName} (Code: {b.Status})");
+                    Console.WriteLine($"Customer Name: {b.CustomerName}");
+                    Console.WriteLine($"Customer Phone: {b.CustomerPhone}");
+                    Console.WriteLine($"Customer Email: {b.CustomerEmail ?? "N/A"}");
+                    Console.WriteLine($"Event Date: {b.BookingDate}");
+                    Console.WriteLine($"Guest Count: {b.GuestCount}");
+                    Console.WriteLine($"Total Amount: {b.TotalAmount:C}");
+                    Console.WriteLine($"Vendor: {b.VendorName} (ID: {b.VendorId})");
+                    Console.WriteLine($"Venue: {b.VenueName} (ID: {b.VenueId})");
+                    
+                    Console.WriteLine("\n--- Decoration Packages ---");
+                    if (b.Decorations.Count == 0) Console.WriteLine("None");
+                    foreach (var d in b.Decorations)
+                    {
+                        Console.WriteLine($"- ID: {d.DecorationPackageId} | Name: {d.PackageName} | Price: {d.Price:C}");
+                    }
+
+                    Console.WriteLine("\n--- Service Packages ---");
+                    if (b.Services.Count == 0) Console.WriteLine("None");
+                    foreach (var s in b.Services)
+                    {
+                        Console.WriteLine($"- ID: {s.ServicePackageId} | Name: {s.PackageName} | Price: {s.Price:C}");
+                    }
+                }
+            }
+            else
+            {
+                Console.WriteLine("Booking not found. Status Code: " + response.StatusCode);
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("Error: " + ex.Message);
+        }
+
+        Console.WriteLine("\nPress any key to continue...");
+        Console.ReadKey();
+    }
+
+    private static async Task CancelBooking()
+    {
+        Console.Clear();
+        Console.WriteLine("--- CANCEL BOOKING ---");
+        Console.Write("Enter Booking ID to cancel: ");
+        if (!int.TryParse(Console.ReadLine(), out int bookingId)) return;
+
+        try
+        {
+            var response = await client.PutAsync(BaseUrl + $"api/Booking/{bookingId}/cancel", null);
+            string responseString = await response.Content.ReadAsStringAsync();
+
+            var res = JsonConvert.DeserializeObject<BookingStatusUpdateResponseModel>(responseString);
+            if (res != null)
+            {
+                Console.WriteLine($"Success: {res.IsSuccess} | Message: {res.Message}");
+            }
+            else
+            {
+                Console.WriteLine("Failed to deserialize response: " + responseString);
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("Error: " + ex.Message);
+        }
+
+        Console.WriteLine("\nPress any key to continue...");
+        Console.ReadKey();
+    }
+    #endregion
+
+    #region Vendor Booking Management
+    private static async Task ManageVendorBookings()
+    {
+        bool back = false;
+        while (!back)
+        {
+            Console.Clear();
+            Console.WriteLine("--- VENDOR BOOKING MANAGEMENT ---");
+            Console.WriteLine("1. View Booking Requests (Pending Approval)");
+            Console.WriteLine("2. View Pending Bookings (Approved)");
+            Console.WriteLine("3. View Completed Bookings");
+            Console.WriteLine("4. Approve Booking");
+            Console.WriteLine("5. Reject Booking");
+            Console.WriteLine("6. Mark Booking as Completed");
+            Console.WriteLine("0. Back to Main Menu");
+            Console.Write("Select option: ");
+            string choice = Console.ReadLine() ?? "";
+
+            switch (choice)
+            {
+                case "1":
+                    await ListVendorBookings("requests");
+                    break;
+                case "2":
+                    await ListVendorBookings("pending");
+                    break;
+                case "3":
+                    await ListVendorBookings("completed");
+                    break;
+                case "4":
+                    await UpdateVendorBookingStatus("approve");
+                    break;
+                case "5":
+                    await UpdateVendorBookingStatus("reject");
+                    break;
+                case "6":
+                    await UpdateVendorBookingStatus("complete");
+                    break;
+                case "0":
+                    back = true;
+                    break;
+                default:
+                    Console.WriteLine("Invalid option. Press any key...");
+                    Console.ReadKey();
+                    break;
+            }
+        }
+    }
+
+    private static async Task ListVendorBookings(string endpoint)
+    {
+        Console.Clear();
+        Console.WriteLine($"--- VENDOR BOOKINGS ({endpoint.ToUpper()}) ---");
+        Console.Write("Enter Vendor ID: ");
+        if (!int.TryParse(Console.ReadLine(), out int vendorId)) return;
+
+        try
+        {
+            var response = await client.GetAsync(BaseUrl + $"api/VendorBooking/{vendorId}/{endpoint}");
+            if (response.IsSuccessStatusCode)
+            {
+                string jsonString = await response.Content.ReadAsStringAsync();
+                var bookings = JsonConvert.DeserializeObject<List<BookingResponseModel>>(jsonString);
+
+                if (bookings == null || bookings.Count == 0)
+                {
+                    Console.WriteLine($"No bookings found in {endpoint} queue.");
+                }
+                else
+                {
+                    foreach (var b in bookings)
+                    {
+                        Console.WriteLine($"ID: {b.BookingId} | Cust: {b.CustomerName} | Phone: {b.CustomerPhone} | Date: {b.BookingDate} | Venue: {b.VenueName} | Total: {b.TotalAmount:C}");
+                    }
+                }
+            }
+            else
+            {
+                Console.WriteLine("Failed to fetch bookings. Status Code: " + response.StatusCode);
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("Error: " + ex.Message);
+        }
+
+        Console.WriteLine("\nPress any key to continue...");
+        Console.ReadKey();
+    }
+
+    private static async Task UpdateVendorBookingStatus(string action)
+    {
+        Console.Clear();
+        Console.WriteLine($"--- VENDOR BOOKING ACTION: {action.ToUpper()} ---");
+        Console.Write("Enter Booking ID: ");
+        if (!int.TryParse(Console.ReadLine(), out int bookingId)) return;
+
+        try
+        {
+            var response = await client.PutAsync(BaseUrl + $"api/VendorBooking/{bookingId}/{action}", null);
+            string responseString = await response.Content.ReadAsStringAsync();
+
+            var res = JsonConvert.DeserializeObject<BookingStatusUpdateResponseModel>(responseString);
+            if (res != null)
+            {
+                Console.WriteLine($"Success: {res.IsSuccess} | Message: {res.Message}");
+            }
+            else
+            {
+                Console.WriteLine("Failed to deserialize response: " + responseString);
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("Error: " + ex.Message);
+        }
+
         Console.WriteLine("\nPress any key to continue...");
         Console.ReadKey();
     }

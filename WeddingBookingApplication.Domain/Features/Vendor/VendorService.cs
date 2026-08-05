@@ -1,6 +1,5 @@
-using Database.AppDbContextModels;
 using WeddingBookingApplication.Domain.Models.Vendor;
-
+using WeddingBookingApplication.Database.AppDbContextModels;
 namespace WeddingBookingApplication.Domain.Features.Vendor;
 
 public class VendorService

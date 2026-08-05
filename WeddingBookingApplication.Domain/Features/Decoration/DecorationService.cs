@@ -1,4 +1,4 @@
-using Database.AppDbContextModels;
+using WeddingBookingApplication.Database.AppDbContextModels;
 using WeddingBookingApplication.Domain.Models.Decoration;
 
 namespace WeddingBookingApplication.Domain.Features.Decoration;
